@@ -2,6 +2,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: "Lord Reader :3",
+      meta: [{ name: "referrer", content: "no-referrer" }],
       link: [{ rel: "icon", type: "image/png", href: "/favicon.ico" }],
     },
   },
@@ -42,5 +43,19 @@ export default defineNuxtConfig({
     },
     workbox: { navigateFallback: "/" },
     devOptions: { enabled: true, type: "module" },
+  },
+
+  routeRules: {
+    "/api/mangadex/**": { proxy: "https://api.mangadex.org/**" },
+  },
+
+  nitro: {
+    routeRules: {
+      "/**": {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      },
+    },
   },
 });
