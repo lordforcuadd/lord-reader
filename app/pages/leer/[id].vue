@@ -54,11 +54,11 @@
 
       <div v-else class="w-full flex flex-col items-center">
         <img
-          v-for="(url, index) in paginas"
+          v-for="(pagina, index) in paginas"
           :key="index"
-          :src="url"
-          loading="lazy"
-          class="w-full object-contain mb-1"
+          :src="pagina"
+          @error="manejarErrorImagen"
+          class="w-full max-w-3xl mx-auto mb-2"
         />
 
         <div class="w-full mt-20 mb-32 px-8 flex flex-col items-center gap-10">
@@ -126,6 +126,13 @@ const user = useSupabaseUser();
 const supabase = useSupabaseClient();
 
 // CORRECCIÓN: Usamos el proxy /api/mangadex
+const manejarErrorImagen = (evento) => {
+  const urlActual = evento.target.src;
+  if (urlActual.includes("/data/")) {
+    evento.target.src = urlActual.replace("/data/", "/data-saver/");
+  }
+};
+
 const { data, pending } = await useFetch(
   `/api/mangadex/at-home/server/${currentId.value}`,
 );
