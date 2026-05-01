@@ -3,9 +3,10 @@ export default defineNuxtConfig({
     head: {
       title: "Lord Reader :3",
       meta: [{ name: "referrer", content: "no-referrer" }],
-      link: [{ rel: "icon", type: "image/png", href: "/favicon.ico" }],
+      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
     },
   },
+
   modules: ["@nuxtjs/supabase", "@nuxtjs/tailwindcss", "@vite-pwa/nuxt"],
 
   supabase: {
@@ -28,6 +29,7 @@ export default defineNuxtConfig({
       description: "Lector de manga profesional sin publicidad",
       theme_color: "#000000",
       background_color: "#000000",
+      display: "standalone",
       icons: [
         {
           src: "/icon_192x192.png",
@@ -41,7 +43,21 @@ export default defineNuxtConfig({
         },
       ],
     },
-    workbox: { navigateFallback: "/" },
+    workbox: {
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/uploads\.mangadex\.org\/covers\/.*/i,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "mangadex-covers",
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 30,
+            },
+          },
+        },
+      ],
+    },
     devOptions: { enabled: true, type: "module" },
   },
 

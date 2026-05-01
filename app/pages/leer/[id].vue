@@ -126,12 +126,14 @@ const currentId = computed(() => route.params.id);
 const user = useSupabaseUser();
 const supabase = useSupabaseClient();
 
+// CORRECCIÓN: Usamos el proxy /api/mangadex
 const { data, pending } = await useFetch(
-  `https://api.mangadex.org/at-home/server/${currentId.value}`,
+  `/api/mangadex/at-home/server/${currentId.value}`,
 );
 
+// CORRECCIÓN: Usamos el proxy /api/mangadex
 const { data: chapterInfo } = await useFetch(
-  `https://api.mangadex.org/chapter/${currentId.value}`,
+  `/api/mangadex/chapter/${currentId.value}`,
 );
 
 const mangaId = computed(() => {
@@ -143,19 +145,17 @@ const numeroCapitulo = computed(() => {
   return chapterInfo.value?.data?.attributes?.chapter || "0";
 });
 
+// CORRECCIÓN: Usamos el proxy /api/mangadex
 const { data: mangaInfo } = await useFetch(
-  () =>
-    mangaId.value ? `https://api.mangadex.org/manga/${mangaId.value}` : null,
+  () => (mangaId.value ? `/api/mangadex/manga/${mangaId.value}` : null),
   {
     query: { "includes[]": ["cover_art"] },
   },
 );
 
+// CORRECCIÓN: Usamos el proxy /api/mangadex
 const { data: feedData, pending: feedPending } = await useFetch(
-  () =>
-    mangaId.value
-      ? `https://api.mangadex.org/manga/${mangaId.value}/feed`
-      : null,
+  () => (mangaId.value ? `/api/mangadex/manga/${mangaId.value}/feed` : null),
   {
     query: {
       limit: 500,

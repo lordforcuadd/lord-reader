@@ -564,8 +564,9 @@ const cargarHistorial = async () => {
     await Promise.all(
       data.map(async (item) => {
         try {
+          // CORRECCIÓN: Usamos el proxy /api/mangadex en lugar de la URL completa
           const feedRes = await $fetch(
-            `https://api.mangadex.org/manga/${item.manga_id}/feed`,
+            `/api/mangadex/manga/${item.manga_id}/feed`,
             {
               query: {
                 limit: 1,
@@ -654,11 +655,12 @@ const parametrosConsulta = computed(() => {
   return params;
 });
 
+// CORRECCIÓN: Usamos el proxy /api/mangadex en lugar de la URL completa
 const {
   data: response,
   pending,
   error: fetchError,
-} = await useFetch("https://api.mangadex.org/manga", {
+} = await useFetch("/api/mangadex/manga", {
   query: parametrosConsulta,
   watch: [pagina, busquedaActiva, filtroContenido, filtroEstado, filtroGenero],
 });

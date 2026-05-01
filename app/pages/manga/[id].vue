@@ -207,15 +207,14 @@ const mostrarNotificacion = (mensaje, tipo = "success") => {
   }, 3000);
 };
 
-const { data: mangaData } = await useFetch(
-  `https://api.mangadex.org/manga/${mangaId}`,
-  {
-    query: { "includes[]": ["cover_art"] },
-  },
-);
+// CORRECCIÓN: Usamos el proxy /api/mangadex para evitar el error de CORS
+const { data: mangaData } = await useFetch(`/api/mangadex/manga/${mangaId}`, {
+  query: { "includes[]": ["cover_art"] },
+});
 
+// CORRECCIÓN: Usamos el proxy /api/mangadex para el feed de capítulos
 const { data: capitulosData, pending: capitulosPending } = await useFetch(
-  `https://api.mangadex.org/manga/${mangaId}/feed`,
+  `/api/mangadex/manga/${mangaId}/feed`,
   {
     query: {
       limit: 500,
@@ -367,6 +366,7 @@ const ultimoCapitulo = computed(() =>
     ? `Ch. ${mangaData.value.data.attributes.lastChapter}`
     : "En curso",
 );
+
 const getCoverUrl = (manga) => {
   const cover = manga?.relationships?.find((rel) => rel.type === "cover_art");
   return cover?.attributes?.fileName
