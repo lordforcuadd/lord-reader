@@ -122,7 +122,6 @@ import { computed, watch } from "vue";
 const route = useRoute();
 const router = useRouter();
 const currentId = computed(() => route.params.id);
-
 const user = useSupabaseUser();
 const supabase = useSupabaseClient();
 
@@ -189,8 +188,13 @@ const navegarA = (id) => {
 
 const paginas = computed(() => {
   if (!data.value || !data.value.chapter) return [];
+
+  // Usamos el host que nos da la API (ej: cmdxd98sb0x3yprd.mangadex.network)
   const baseUrl = data.value.baseUrl;
   const hash = data.value.chapter.hash;
+
+  // Intentamos usar la calidad original, pero si falla el 404,
+  // podrías intentar cambiar "data" por "data-saver" en la URL
   return data.value.chapter.data.map(
     (archivo) => `${baseUrl}/data/${hash}/${archivo}`,
   );
