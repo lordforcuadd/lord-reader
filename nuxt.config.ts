@@ -44,6 +44,7 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
+      navigateFallback: null,
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/uploads\.mangadex\.org\/covers\/.*/i,

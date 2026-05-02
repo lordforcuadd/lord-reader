@@ -26,6 +26,14 @@
 
       <div class="flex gap-4">
         <button
+          @click="cambiarServidor()"
+          class="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 active:scale-95 text-zinc-200 rounded-lg transition-all text-xs sm:text-sm shadow-md border border-zinc-700"
+          title="Cambiar servidor si las imágenes fallan"
+        >
+          <span class="hidden sm:inline font-medium">Cambiar Servidor</span>
+          <span class="inline sm:hidden font-medium">Servidor</span>
+        </button>
+        <button
           v-if="prevId"
           @click="navegarA(prevId)"
           class="text-[10px] font-bold uppercase text-zinc-500 hover:text-white"
@@ -125,19 +133,29 @@ const currentId = computed(() => route.params.id);
 const user = useSupabaseUser();
 const supabase = useSupabaseClient();
 
-// CORRECCIÓN: Usamos el proxy /api/mangadex
 const manejarErrorImagen = (evento) => {
-  const urlActual = evento.target.src;
-  if (urlActual.includes("/data/")) {
-    evento.target.src = urlActual.replace("/data/", "/data-saver/");
+  const img = evento.target;
+
+  if (img.src.includes("/data/")) {
+    img.src = img.src.replace("/data/", "/data-saver/");
+  } else if (img.src.includes("/data-saver/")) {
+    img.src =
+      "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%2318181b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' fill='%23ef4444'%3EError en el nodo de MangaDex.%3C/text%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' fill='%23ef4444'%3EPor favor, usa el boton 'Cambiar Servidor'.%3C/text%3E%3C/svg%3E";
   }
 };
 
-const { data, pending } = await useFetch(
-  `/api/mangadex/at-home/server/${currentId.value}`,
-);
+const {
+  data,
+  pending,
+  refresh: cambiarServidor,
+} = await useFetch(`/api/mangadex/at-home/server/${currentId.value}`, {
+  query: {
+    t: Date.now(),
+    forcePort443: true,
+  },
+  server: false,
+});
 
-// CORRECCIÓN: Usamos el proxy /api/mangadex
 const { data: chapterInfo } = await useFetch(
   `/api/mangadex/chapter/${currentId.value}`,
 );
@@ -151,7 +169,6 @@ const numeroCapitulo = computed(() => {
   return chapterInfo.value?.data?.attributes?.chapter || "0";
 });
 
-// CORRECCIÓN: Usamos el proxy /api/mangadex
 const { data: mangaInfo } = await useFetch(
   () => (mangaId.value ? `/api/mangadex/manga/${mangaId.value}` : null),
   {
@@ -159,7 +176,6 @@ const { data: mangaInfo } = await useFetch(
   },
 );
 
-// CORRECCIÓN: Usamos el proxy /api/mangadex
 const { data: feedData, pending: feedPending } = await useFetch(
   () => (mangaId.value ? `/api/mangadex/manga/${mangaId.value}/feed` : null),
   {
@@ -196,12 +212,9 @@ const navegarA = (id) => {
 const paginas = computed(() => {
   if (!data.value || !data.value.chapter) return [];
 
-  // Usamos el host que nos da la API (ej: cmdxd98sb0x3yprd.mangadex.network)
   const baseUrl = data.value.baseUrl;
   const hash = data.value.chapter.hash;
 
-  // Intentamos usar la calidad original, pero si falla el 404,
-  // podrías intentar cambiar "data" por "data-saver" en la URL
   return data.value.chapter.data.map(
     (archivo) => `${baseUrl}/data/${hash}/${archivo}`,
   );
